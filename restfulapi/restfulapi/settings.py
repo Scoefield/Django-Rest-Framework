@@ -129,5 +129,16 @@ REST_FRAMEWORK = {
     # "DEFAULT_AUTHENTICATION_CLASSES": ['api.utils.auth.FirstAuthtication', ],
     # "UNAUTHENTICATED_USER": lambda: "匿名用户"
     "UNAUTHENTICATED_USER": None,   # 匿名，request.user = None
-    "UNAUTHENTICATED_TOKEN": None   # 匿名，request.auth = None
+    "UNAUTHENTICATED_TOKEN": None,   # 匿名，request.auth = None
+
+    # 全局使用的权限类
+    "DEFAULT_PERMISSION_CLASSES": ['api.utils.permission.SVIPPermission'],
+
+    # 访问频率控制类
+    "DEFAULT_THROTTLE_CLASSES": ['api.utils.throttle.UserThrottle'],
+    # 访问频率设置
+    "DEFAULT_THROTTLE_RATES": {
+        'dys': '3/m',        # 一分钟限制访问3次
+        'user_dys': '10/m',  # 一分钟限制访问10次
+    }
 }

@@ -5,7 +5,9 @@ from rest_framework.request import Request
 from rest_framework import exceptions
 from rest_framework.authentication import BaseAuthentication
 from api.utils.auth import Authtication, FirstAuthtication
-from api.utils.permission import MyPermission, MyPermission1
+from api.utils.permission import SVIPPermission, MyPermission1
+from api.utils.throttle import VisitThrottle
+import time
 from api import models
 
 ORDER_DICT = {
@@ -36,7 +38,7 @@ def md5(user):
     m = hashlib.md5()
     m.update(bytes(user, encoding='utf-8'))
     token = m.hexdigest() + str(int(ctime))
-    print(token)
+    # print(token)
     return token
 
 
@@ -45,6 +47,8 @@ class AuthView(APIView):
     用户登录认证
     """
     authentication_classes = []  # 空列表表示无须进行token认证（一开始没有登录，无需token认证）
+    permission_classes = []     # 无须进行权限认证
+    throttle_classes = [VisitThrottle, ]    # 通过IP控制访问频率
 
     def post(self, request, *args, **kwargs):
         ret = {'code': 1000, 'msg': None}
@@ -73,12 +77,12 @@ class OrderView(APIView):
     """
 
     # authentication_classes = [Authtication, ]   # 使用token认证
-    permission_classes = [MyPermission, ]   # 权限认证类对象
+    # permission_classes = [SVIPPermission, ]   # 权限认证类对象
 
     def get(self, request, *args, **kwargs):
         # request.user
         # request.auth
-
+        self.dispatch
         ret = {'code': 1000, 'msg': None, 'data': None}
         try:
             ret['data'] = ORDER_DICT
@@ -94,7 +98,7 @@ class UserInfoView(APIView):
     用户信息相关业务（普通用户、VIP）
     """
 
-    permission_classes = [MyPermission1, ]
+    permission_classes = [MyPermission1, ]  # 权限认证类对象
 
     def get(self, request, *args, **kwargs):
         ret = {'code': 1000, 'msg': None, 'data': None}
